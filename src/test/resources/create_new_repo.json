@@ -1,0 +1,9 @@
+{
+  "name": "Stephy says hi from RestAssured",
+  "description": "Created fron RestAssured Training repo",
+  "homepage": "https://github.com",
+  "private": false,
+  "has_issues": true,
+  "has_projects": true,
+  "has_wiki": true
+}
