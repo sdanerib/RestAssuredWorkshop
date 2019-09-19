@@ -39,148 +39,32 @@ public class RestAssuredExamples {
 
     @Test
     public void methodGet_getGithubFollowers(){
-
-        int expectedFollowersNumber = 7;
-
-        requestSpec
-                .basePath("/users/{githubUser}/followers");
-
-        given()
-                .log().all()
-                .spec(requestSpec)
-
-        .when()
-                .log().all()
-                .get()
-
-        .then()
-                .log().all()
-                .statusCode(200)
-                .body("size()", is(expectedFollowersNumber))
-                .body("url", hasItem("https://api.github.com/users/rpramoth"))
-                .body("login", hasItems("FranciscoJGuz", "jhumbertoh"))
-                .body("[1].login", equalTo("jane-hnatiuk"));
+        //TODO: https://developer.github.com/v3/repos/#list-all-topics-for-a-repository
     }
 
     @Test
     public void methodGet_getTopicsForRepository(){
-
-        FilterableRequestSpecification filterableRequestSpecification = (FilterableRequestSpecification) requestSpec;
-        filterableRequestSpecification.removeNamedPathParam("githubUser");
-
-        requestSpec
-                .basePath("/repos/sdanerib/stephany_cryptodemo/topics")
-                .header("Accept", "application/vnd.github.mercy-preview+json");
-
-        given()
-                .log().all()
-                .spec(requestSpec)
-
-        .when()
-                .log().all()
-                .get()
-        .then()
-                .log().all()
-                .statusCode(200)
-                .body("names",notNullValue())
-                .body("names", hasItem("blockchain"));
-
+        //TODO: https://developer.github.com/v3/repos/#list-all-topics-for-a-repository
     }
 
     @Test
     public void methodPost_createGithubRepoWithoutOAuth_expected401() throws IOException, ParseException {
+       //TODO: https://developer.github.com/v3/repos/#create
+    }
 
-        requestSpec
-                .basePath("/user/repos")
-                .body(getJsonDefinition("create_new_repo.json"));
-
-        given()
-                .log().all()
-                .spec(requestSpec)
-
-        .when()
-                .log().all()
-                .post()
-
-        .then()
-                .log().all()
-                .statusCode(401)
-                .body("message", is("Requires authentication"))
-                .body("documentation_url", is("https://developer.github.com/v3/repos/#create"));
+    @Test
+    public void methodPost_createGithubRepo() throws IOException, ParseException {
+        //TODO: https://developer.github.com/v3/repos/#create
     }
 
     @Test
     public void methodPut_setNewTopicsForRepository() throws IOException, ParseException {
-
-        requestSpec
-                .pathParam("repoWithTopics", getEnvironmentProperty("repo_with_topics"))
-                .basePath("/repos/{githubUser}/{repoWithTopics}/topics")
-                .header("Accept", "application/vnd.github.mercy-preview+json")
-                .header("Authorization", "token " + getTestToken())
-                .body(getJsonDefinition("new_topics_for_repo.json"));
-
-        given()
-                .log().all()
-                .spec(requestSpec)
-
-                .when()
-                .log().all()
-                .put()
-
-                .then()
-                .log().all()
-                .statusCode(200)
-                .body("names",notNullValue())
-                .body("names", hasItem("bitcoin"));
-
+        //TODO: https://developer.github.com/v3/repos/#list-all-topics-for-a-repository
     }
-
-
-    @Test
-    public void methodPost_createGithubRepo() throws IOException, ParseException {
-
-        FilterableRequestSpecification filterableRequestSpecification = (FilterableRequestSpecification) requestSpec;
-        filterableRequestSpecification.removeNamedPathParam("githubUser");
-
-        requestSpec
-                .basePath("/user/repos")
-                .header("Authorization", "token " + getTestToken())
-                .body(getJsonDefinition("create_new_repo.json"));
-
-        given()
-                .log().all()
-                .spec(requestSpec)
-
-        .when()
-                .log().all()
-                .post()
-
-        .then()
-                .log().all()
-                .statusCode(201)
-                .body("full_name", is(getGithubUsername()+"/Stephy-says-hi-from-RestAssured"));
-    }
-
 
     @Test
     public void methodDelete_createGithubRepo() throws IOException, ParseException {
-
-        requestSpec
-                .basePath("/repos/{githubUser}/Stephy-says-hi-from-RestAssured")
-                .header("Authorization", "token " + getTestToken());
-                //.body(getJsonDefinition("create_new_repo.json"));
-
-        given()
-                .log().all()
-                .spec(requestSpec)
-
-        .when()
-                .log().all()
-                .delete()
-
-        .then()
-                .log().all()
-                .statusCode(204);
+        //TODO: https://developer.github.com/v3/repos/#delete-a-repository
     }
 
 }
