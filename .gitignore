@@ -33,6 +33,7 @@ test-output/
 # Reference: https://intellij-support.jetbrains.com/hc/en-us/articles/206544839
 
 .idea/
+.DS_Store
 
 # CMake
 cmake-build-debug/

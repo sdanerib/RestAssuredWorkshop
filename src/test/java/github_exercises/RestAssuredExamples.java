@@ -14,6 +14,7 @@ import org.junit.jupiter.api.BeforeEach;
 import java.io.IOException;
 
 import static github_exercises.DataManager.getJsonDefinition;
+import static github_exercises.PropertiesManager.getEnvironmentProperty;
 import static github_exercises.Utilities.*;
 import static io.restassured.RestAssured.given;
 import static org.hamcrest.Matchers.*;
@@ -28,7 +29,7 @@ public class RestAssuredExamples {
         RestAssured.defaultParser = Parser.JSON;
         String baseURI = "https://api.github.com";
 
-        System.out.println(getTestToken());
+        System.out.println(getGithubUsername() + getTestToken());
 
         requestSpec = new RequestSpecBuilder()
                 .setBaseUri(baseURI)
@@ -48,7 +49,6 @@ public class RestAssuredExamples {
                 .log().all()
                 .spec(requestSpec)
 
-
         .when()
                 .log().all()
                 .get()
@@ -56,7 +56,35 @@ public class RestAssuredExamples {
         .then()
                 .log().all()
                 .statusCode(200)
-                .body("size()", is(expectedFollowersNumber));
+                .body("size()", is(expectedFollowersNumber))
+                .body("url", hasItem("https://api.github.com/users/rpramoth"))
+                .body("login", hasItems("FranciscoJGuz", "jhumbertoh"))
+                .body("[1].login", equalTo("jane-hnatiuk"));
+    }
+
+    @Test
+    public void methodGet_getTopicsForRepository(){
+
+        FilterableRequestSpecification filterableRequestSpecification = (FilterableRequestSpecification) requestSpec;
+        filterableRequestSpecification.removeNamedPathParam("githubUser");
+
+        requestSpec
+                .basePath("/repos/sdanerib/stephany_cryptodemo/topics")
+                .header("Accept", "application/vnd.github.mercy-preview+json");
+
+        given()
+                .log().all()
+                .spec(requestSpec)
+
+        .when()
+                .log().all()
+                .get()
+        .then()
+                .log().all()
+                .statusCode(200)
+                .body("names",notNullValue())
+                .body("names", hasItem("blockchain"));
+
     }
 
     @Test
@@ -70,7 +98,6 @@ public class RestAssuredExamples {
                 .log().all()
                 .spec(requestSpec)
 
-
         .when()
                 .log().all()
                 .post()
@@ -80,6 +107,32 @@ public class RestAssuredExamples {
                 .statusCode(401)
                 .body("message", is("Requires authentication"))
                 .body("documentation_url", is("https://developer.github.com/v3/repos/#create"));
+    }
+
+    @Test
+    public void methodPut_setNewTopicsForRepository() throws IOException, ParseException {
+
+        requestSpec
+                .pathParam("repoWithTopics", getEnvironmentProperty("repo_with_topics"))
+                .basePath("/repos/{githubUser}/{repoWithTopics}/topics")
+                .header("Accept", "application/vnd.github.mercy-preview+json")
+                .header("Authorization", "token " + getTestToken())
+                .body(getJsonDefinition("new_topics_for_repo.json"));
+
+        given()
+                .log().all()
+                .spec(requestSpec)
+
+                .when()
+                .log().all()
+                .put()
+
+                .then()
+                .log().all()
+                .statusCode(200)
+                .body("names",notNullValue())
+                .body("names", hasItem("bitcoin"));
+
     }
 
 
