@@ -63,13 +63,11 @@ public class RestAssuredExamples {
     }
 
     @Test
-    public void methodGet_getTopicsForRepository(){
-
-        FilterableRequestSpecification filterableRequestSpecification = (FilterableRequestSpecification) requestSpec;
-        filterableRequestSpecification.removeNamedPathParam("githubUser");
+    public void methodGet_getTopicsForRepository() throws IOException {
 
         requestSpec
-                .basePath("/repos/sdanerib/stephany_cryptodemo/topics")
+                .pathParam("repoWithTopics", getEnvironmentProperty("repo_with_topics"))
+                .basePath("/repos/{githubUser}/{repoWithTopics}/topics")
                 .header("Accept", "application/vnd.github.mercy-preview+json");
 
         given()
@@ -90,6 +88,9 @@ public class RestAssuredExamples {
     @Test
     public void methodPost_createGithubRepoWithoutOAuth_expected401() throws IOException, ParseException {
 
+        FilterableRequestSpecification filterableRequestSpecification = (FilterableRequestSpecification) requestSpec;
+        filterableRequestSpecification.removeNamedPathParam("githubUser");
+
         requestSpec
                 .basePath("/user/repos")
                 .body(getJsonDefinition("create_new_repo.json"));
@@ -107,6 +108,31 @@ public class RestAssuredExamples {
                 .statusCode(401)
                 .body("message", is("Requires authentication"))
                 .body("documentation_url", is("https://developer.github.com/v3/repos/#create"));
+    }
+
+    @Test
+    public void methodPost_createGithubRepo() throws IOException, ParseException {
+
+        FilterableRequestSpecification filterableRequestSpecification = (FilterableRequestSpecification) requestSpec;
+        filterableRequestSpecification.removeNamedPathParam("githubUser");
+
+        requestSpec
+                .basePath("/user/repos")
+                .header("Authorization", "token " + getTestToken())
+                .body(getJsonDefinition("create_new_repo.json"));
+
+        given()
+                .log().all()
+                .spec(requestSpec)
+
+        .when()
+                .log().all()
+                .post()
+
+        .then()
+                .log().all()
+                .statusCode(201)
+                .body("full_name", is(getGithubUsername()+"/Stephy-says-hi-from-RestAssured"));
     }
 
     @Test
@@ -134,33 +160,6 @@ public class RestAssuredExamples {
                 .body("names", hasItem("bitcoin"));
 
     }
-
-
-    @Test
-    public void methodPost_createGithubRepo() throws IOException, ParseException {
-
-        FilterableRequestSpecification filterableRequestSpecification = (FilterableRequestSpecification) requestSpec;
-        filterableRequestSpecification.removeNamedPathParam("githubUser");
-
-        requestSpec
-                .basePath("/user/repos")
-                .header("Authorization", "token " + getTestToken())
-                .body(getJsonDefinition("create_new_repo.json"));
-
-        given()
-                .log().all()
-                .spec(requestSpec)
-
-        .when()
-                .log().all()
-                .post()
-
-        .then()
-                .log().all()
-                .statusCode(201)
-                .body("full_name", is(getGithubUsername()+"/Stephy-says-hi-from-RestAssured"));
-    }
-
 
     @Test
     public void methodDelete_createGithubRepo() throws IOException, ParseException {
