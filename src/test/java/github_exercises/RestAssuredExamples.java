@@ -4,13 +4,17 @@ import io.restassured.RestAssured;
 import io.restassured.builder.RequestSpecBuilder;
 
 import io.restassured.parsing.Parser;
+import io.restassured.specification.FilterableRequestSpecification;
 import io.restassured.specification.RequestSpecification;
 
+import org.json.simple.parser.ParseException;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.BeforeEach;
 
+import java.io.IOException;
+
+import static github_exercises.DataManager.getJsonDefinition;
 import static github_exercises.Utilities.*;
-import static github_exercises.Utilities.bodyForGithubRepoCreation;
 import static io.restassured.RestAssured.given;
 import static org.hamcrest.Matchers.*;
 
@@ -28,6 +32,7 @@ public class RestAssuredExamples {
 
         requestSpec = new RequestSpecBuilder()
                 .setBaseUri(baseURI)
+                .addPathParam("githubUser", getGithubUsername())
                 .build();
     }
 
@@ -37,7 +42,7 @@ public class RestAssuredExamples {
         int expectedFollowersNumber = 7;
 
         requestSpec
-                .basePath("/users/sdanerib/followers");
+                .basePath("/users/{githubUser}/followers");
 
         given()
                 .log().all()
@@ -55,13 +60,11 @@ public class RestAssuredExamples {
     }
 
     @Test
-    public void methodPost_createGithubRepoWithoutOAuth_expected401(){
-
-        int expectedFollowersNumber = 7;
+    public void methodPost_createGithubRepoWithoutOAuth_expected401() throws IOException, ParseException {
 
         requestSpec
                 .basePath("/user/repos")
-                .body(bodyForGithubRepoCreation());
+                .body(getJsonDefinition("create_new_repo.json"));
 
         given()
                 .log().all()
@@ -81,12 +84,15 @@ public class RestAssuredExamples {
 
 
     @Test
-    public void methodPost_createGithubRepo(){
+    public void methodPost_createGithubRepo() throws IOException, ParseException {
+
+        FilterableRequestSpecification filterableRequestSpecification = (FilterableRequestSpecification) requestSpec;
+        filterableRequestSpecification.removeNamedPathParam("githubUser");
 
         requestSpec
                 .basePath("/user/repos")
                 .header("Authorization", "token " + getTestToken())
-                .body(bodyForGithubRepoCreation());
+                .body(getJsonDefinition("create_new_repo.json"));
 
         given()
                 .log().all()
@@ -99,17 +105,17 @@ public class RestAssuredExamples {
         .then()
                 .log().all()
                 .statusCode(201)
-                .body("full_name", is("sdanerib/Stephy-says-hi-from-RestAssured"));
+                .body("full_name", is(getGithubUsername()+"/Stephy-says-hi-from-RestAssured"));
     }
 
 
     @Test
-    public void methodDelete_createGithubRepo(){
+    public void methodDelete_createGithubRepo() throws IOException, ParseException {
 
         requestSpec
-                .basePath("/repos/sdanerib/Stephy-says-hi-from-RestAssured")
-                .header("Authorization", "token " + getTestToken())
-                .body(bodyForGithubRepoCreation());
+                .basePath("/repos/{githubUser}/Stephy-says-hi-from-RestAssured")
+                .header("Authorization", "token " + getTestToken());
+                //.body(getJsonDefinition("create_new_repo.json"));
 
         given()
                 .log().all()
