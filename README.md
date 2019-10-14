@@ -1,5 +1,5 @@
-REST Assured workshop
-==================
+REST Assured workshop by Stephany Daneri
+========================================
 For those of you looking to gain some experience working with [REST Assured](http://rest-assured.io/)
 
 What do I need?
