@@ -8,8 +8,9 @@ import io.restassured.specification.FilterableRequestSpecification;
 import io.restassured.specification.RequestSpecification;
 
 import org.json.simple.parser.ParseException;
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.BeforeEach;
+import org.testng.annotations.*;
+//import org.junit.jupiter.api.Test;
+//import org.junit.jupiter.api.BeforeEach;
 
 import java.io.IOException;
 
@@ -19,11 +20,13 @@ import static github_exercises.Utilities.*;
 import static io.restassured.RestAssured.given;
 import static org.hamcrest.Matchers.*;
 
+@Listeners({TestListener.class})
 public class RestAssuredExamples {
 
     private static RequestSpecification requestSpec;
 
-    @BeforeEach
+    //@BeforeEach
+    @BeforeMethod
     public void setUp(){
 
         RestAssured.defaultParser = Parser.JSON;
@@ -37,11 +40,12 @@ public class RestAssuredExamples {
                 .build();
     }
 
-    @Test
+    @Test(priority = 1)
     public void methodGet_getGithubFollowers(){
 
-        int expectedFollowersNumber = 7;
+        int expectedFollowersNumber = 9;
 
+        System.out.println("requestSpec: " + requestSpec.toString());
         requestSpec
                 .basePath("/users/{githubUser}/followers");
 
@@ -62,7 +66,7 @@ public class RestAssuredExamples {
                 .body("[1].login", equalTo("jane-hnatiuk"));
     }
 
-    @Test
+    @Test(priority = 2)
     public void methodGet_getTopicsForRepository() throws IOException {
 
         requestSpec
@@ -85,7 +89,7 @@ public class RestAssuredExamples {
 
     }
 
-    @Test
+    @Test(priority = 3)
     public void methodPost_createGithubRepoWithoutOAuth_expected401() throws IOException, ParseException {
 
         FilterableRequestSpecification filterableRequestSpecification = (FilterableRequestSpecification) requestSpec;
@@ -110,7 +114,7 @@ public class RestAssuredExamples {
                 .body("documentation_url", is("https://developer.github.com/v3/repos/#create"));
     }
 
-    @Test
+    @Test(priority = 4)
     public void methodPost_createGithubRepo() throws IOException, ParseException {
 
         FilterableRequestSpecification filterableRequestSpecification = (FilterableRequestSpecification) requestSpec;
@@ -135,7 +139,7 @@ public class RestAssuredExamples {
                 .body("full_name", is(getGithubUsername()+"/Stephy-says-hi-from-RestAssured"));
     }
 
-    @Test
+    @Test(priority = 5)
     public void methodPut_setNewTopicsForRepository() throws IOException, ParseException {
 
         requestSpec
@@ -161,7 +165,7 @@ public class RestAssuredExamples {
 
     }
 
-    @Test
+    @Test(priority = 6)
     public void methodDelete_createGithubRepo() throws IOException, ParseException {
 
         requestSpec
